@@ -5,6 +5,9 @@ class Minesweeper {
   private Tile[][] _grid;
   private int _gridWidth = 0;
   private int _gridHeight = 0;
+  private int _numberOfBombs = 0;
+  
+  private int _shownTiles = 0;
   
   private int[][] _helper = {
       { -1, -1 },
@@ -21,6 +24,7 @@ class Minesweeper {
     _grid = new Tile[gridWidth][gridHeight];
     _gridWidth = gridWidth;
     _gridHeight = gridHeight;
+    _numberOfBombs = numberOfBombs;
 
     int bombsPlaced = 0;
 
@@ -34,7 +38,7 @@ class Minesweeper {
         continue;
       }
 
-      _grid[rndX][rndY] = new Tile(true);
+      _grid[rndX][rndY] = new Tile(true, new PVector(rndX, rndY));
       bombsPlaced++;
     }
 
@@ -62,20 +66,33 @@ class Minesweeper {
           }
         }
 
-        _grid[x][y] = new Tile(neighbouringBombs);
+        _grid[x][y] = new Tile(neighbouringBombs, new PVector(x, y));
       }
     }
   }
   
-  void ShowTile(int x, int y)
+  Tile GetTile(int x, int y)
   {
-    ShowTile(x, y, true);
+    return _grid[x][y];
   }
   
-  private void ShowTile(int x, int y, boolean isStart)
+  Tile GetTile(PVector pos)
   {
-    Tile tile = _grid[x][y];
+    return _grid[int(pos.x)][int(pos.y)];
+  }
+  
+  void ShowTile(Tile tile)
+  {
+    if (!IsRunning)
+    {
+      return;
+    }
     
+    ShowTile(tile, true);
+  }
+  
+  private void ShowTile(Tile tile, boolean isStart)
+  {
     if (tile.IsMarked)
     {
       return;
@@ -87,8 +104,8 @@ class Minesweeper {
       
       for (int i = 0; i < _helper.length; i++)
       {
-        int tmpX = x + _helper[i][0];
-        int tmpY = y + _helper[i][1];
+        int tmpX = int(tile.Position.x) + _helper[i][0];
+        int tmpY = int(tile.Position.y) + _helper[i][1];
 
         if (0 <= tmpX && tmpX < gridWidth
           && 0 <= tmpY && tmpY < gridHeight
@@ -100,7 +117,7 @@ class Minesweeper {
       
       if (foundBombs == tile.NumberOfCloseBombs)
       {
-        ShowNeighbouringTiles(x, y);
+        ShowNeighbouringTiles(tile);
       }
       return;
     }
@@ -111,30 +128,39 @@ class Minesweeper {
     }
     
     tile.Show();
+    _shownTiles++;
     
     if (tile.IsBomb) 
     {
       IsRunning = false;
       ShowAllBombs();
+      return;
+    }
+    
+    if (_shownTiles == _gridWidth * _gridHeight - _numberOfBombs)
+    {
+      // win condition
+      IsRunning = false;
+      return;
     }
     
     if (tile.NumberOfCloseBombs == 0)
     {
-      ShowNeighbouringTiles(x, y);
+      ShowNeighbouringTiles(tile);
     }
   }
   
-  private void ShowNeighbouringTiles(int x, int y)
+  private void ShowNeighbouringTiles(Tile tile)
   {
     for (int i = 0; i < _helper.length; i++)
     {
-      int tmpX = x + _helper[i][0];
-      int tmpY = y + _helper[i][1];
+      int tmpX = int(tile.Position.x) + _helper[i][0];
+      int tmpY = int(tile.Position.y) + _helper[i][1];
 
       if (0 <= tmpX && tmpX < gridWidth
         && 0 <= tmpY && tmpY < gridHeight)
       {
-        ShowTile(tmpX, tmpY, false);
+        ShowTile(_grid[tmpX][tmpY], false);
       }
     } 
   }
@@ -154,9 +180,12 @@ class Minesweeper {
     }
   }
   
-  void MarkTile(int x, int y)
+  void MarkTile(Tile tile)
   {
-    Tile tile = _grid[x][y];
+    if (!IsRunning)
+    {
+      return;
+    }
     
     if (tile.IsShown)
     {

@@ -7,6 +7,7 @@ int numberOfBombs = 80;
 
 Minesweeper game = new Minesweeper(gridWidth, gridHeight, numberOfBombs);
 MinesweeperDrawer drawer = new MinesweeperDrawer(game, tileSize);
+MinesweeperAI ai = new MinesweeperAI(game);
 
 void settings()
 {
@@ -16,10 +17,12 @@ void settings()
 
 void setup() {
   background(0);
+  frameRate(2);
 }
 
 void draw()
 {
+  ai.PerformClick();
   drawer.Draw();
 }
 
@@ -33,12 +36,14 @@ void mouseReleased()
   int clickedTileX = int(mouseX / tileSize);
   int clickedTileY = int(mouseY / tileSize);
   
+  Tile tile = game.GetTile(clickedTileX, clickedTileY);
+  
   if (mouseButton == LEFT)
   {
-    game.ShowTile(clickedTileX, clickedTileY);
+    game.ShowTile(tile);
   }
   else if (mouseButton == RIGHT)
   {
-    game.MarkTile(clickedTileX, clickedTileY);
+    game.MarkTile(tile);
   }
 }

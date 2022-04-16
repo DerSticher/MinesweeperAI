@@ -5,14 +5,16 @@ class Tile
   
   public boolean IsShown = false;
   public boolean IsMarked = false;
+  
+  public PVector Position;
 
-  Tile(boolean isBomb)
+  Tile(boolean isBomb, PVector position)
   {
     IsBomb = isBomb;
     NumberOfCloseBombs = -1;
   }
 
-  Tile(int numberOfCloseBombs)
+  Tile(int numberOfCloseBombs, PVector position)
   {
     IsBomb = false;
     NumberOfCloseBombs = numberOfCloseBombs;
