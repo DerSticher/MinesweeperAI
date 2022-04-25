@@ -1,3 +1,4 @@
+from numpy import array
 import pygame
 
 class MinesweeperDrawer:
@@ -9,6 +10,9 @@ class MinesweeperDrawer:
         self.screen = pygame.display.set_mode((self.game.width * self.tile_size, self.game.height * self.tile_size))
 
         self.font = pygame.font.SysFont('Arial', int(tile_size * 0.8))
+        self.numbers = []
+        for i in range(9):
+            self.numbers.append(self.font.render(str(i), True, (0, 0, 0)))
 
     def draw(self):
         self.screen.fill((0, 0, 0))
@@ -39,6 +43,6 @@ class MinesweeperDrawer:
         else:
             pygame.draw.rect(self.screen, (192, 192, 192), (x, y, size, size))
 
-            number_surface = self.font.render(str(tile.number_of_close_bombs), True, (0, 0, 0))
+            number_surface = self.numbers[tile.number_of_close_bombs]
             self.screen.blit(number_surface, (x + size / 4 + 1, y))
             # text(str(tile.NumberOfCloseBombs), x + size / 2 + 1, y + size / 2 - 3)

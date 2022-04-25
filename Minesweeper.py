@@ -1,28 +1,32 @@
 from random import randint
 from Tile import Tile
-
+import gc
 
 class Minesweeper:
 
     helper = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]]
 
     def __init__(self, width, height, number_of_bombs):
-        self.is_running = True
         self.width = width
         self.height = height
         self.number_of_bombs = number_of_bombs
+        self.reset()
+    
+    def reset(self):
+        if hasattr(self, 'grid'):
+            del self.grid
+            gc.collect()
 
         self.grid = []
-        for x in range(width):
-            self.grid.append([0] * height)
+        for x in range(self.width):
+            self.grid.append([0] * self.height)
 
         self.shown_tiles = 0
-  
         bombs_placed = 0
 
-        while (bombs_placed < number_of_bombs):
-            rnd_x = randint(0, width - 1)
-            rnd_y = randint(0, height - 1)
+        while (bombs_placed < self.number_of_bombs):
+            rnd_x = randint(0, self.width - 1)
+            rnd_y = randint(0, self.height - 1)
 
             if (self.grid[rnd_x][rnd_y] != 0):
                 continue
@@ -30,8 +34,8 @@ class Minesweeper:
             self.grid[rnd_x][rnd_y] = Tile.init_bomb((rnd_y, rnd_y))
             bombs_placed += 1
 
-        for x in range(width):
-            for y in range(height):
+        for x in range(self.width):
+            for y in range(self.height):
                 if (self.grid[x][y] != 0):
                     continue
 
@@ -42,12 +46,15 @@ class Minesweeper:
                     tmp_x = x + helper[i][0]
                     tmp_y = y + helper[i][1]
 
-                    if (0 <= tmp_x < width and 0 <= tmp_y < height and self.grid[tmp_x][tmp_y] != 0 and self.grid[tmp_x][tmp_y].is_bomb):
+                    if (0 <= tmp_x < self.width and 0 <= tmp_y < self.height and self.grid[tmp_x][tmp_y] != 0 and self.grid[tmp_x][tmp_y].is_bomb):
                         close_bombs += 1
                     
                 self.grid[x][y] = Tile.init_normal((x, y), close_bombs)
-                
+
+        self.is_running = True
+
   
+
     def get_tile(self, position):
         return self.grid[position[0]][position[1]]
   
